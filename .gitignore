@@ -1,0 +1,7 @@
+/build/
+/out/
+/dist/
+*.dll
+*.pdb
+*.exe
+.vs/
