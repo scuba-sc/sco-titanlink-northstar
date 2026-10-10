@@ -1,3 +1,5 @@
-# The vendored SDK headers must stay byte-for-byte what sco-core ships (CI compares them).
-third_party/sco-sdk/** -text
 * text=auto
+# Later lines win. The vendored SDK headers must stay byte for byte what sco-core ships (CI
+# compares them), so no line-ending conversion, ever.
+third_party/sco-sdk/** -text
+*.sh text eol=lf
