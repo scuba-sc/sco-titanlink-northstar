@@ -1,0 +1,51 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  sdk-pin:
+    name: SDK headers match the pin
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare third_party/sco-sdk with sco-core at SCO_SDK_PIN
+        shell: bash
+        run: bash tools/check-sdk.sh
+
+  build:
+    name: Build (MSVC x64) and package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -A x64
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Link self-test (hostile channel)
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Check mod.json
+        shell: pwsh
+        run: |
+          $m = Get-Content mod/TitanLink/mod.json -Raw | ConvertFrom-Json
+          if ($m.PluginDependencies -notcontains 'TitanLink') { throw 'mod.json must depend on the TitanLink plugin' }
+          if (-not (Test-Path "mod/TitanLink/mod/scripts/vscripts/$($m.Scripts[0].Path)")) { throw 'mod.json names a script that is not there' }
+      - name: Package
+        shell: pwsh
+        run: |
+          $root = 'dist/TitanLink'
+          New-Item -ItemType Directory -Force "$root/R2Northstar/plugins", "$root/R2Northstar/mods" | Out-Null
+          Copy-Item build/Release/TitanLink.dll "$root/R2Northstar/plugins/"
+          Copy-Item -Recurse mod/TitanLink "$root/R2Northstar/mods/TitanLink"
+          Copy-Item README.md, LICENSE, third_party/sco-sdk/SCO_SDK_PIN $root
+          Get-ChildItem -Recurse $root | Select-Object -ExpandProperty FullName
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TitanLink-northstar
+          path: dist/TitanLink
+          if-no-files-found: error

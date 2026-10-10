@@ -1,0 +1,17 @@
+{
+  "Name": "TitanLink",
+  "Description": "The Titanfall 2 side of sc-offline's TitanLink bridge: a local match driven from Star Citizen on the same PC",
+  "Version": "0.1.0",
+  "LoadPriority": 3,
+  "RequiredOnClient": false,
+  "PluginDependencies": [ "TitanLink" ],
+  "Scripts": [
+    {
+      "Path": "titanlink.nut",
+      "RunOn": "SERVER && MP && TitanLink",
+      "ServerCallback": {
+        "After": "TitanLink_Init"
+      }
+    }
+  ]
+}
