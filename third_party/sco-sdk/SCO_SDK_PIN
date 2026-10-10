@@ -1,5 +1,5 @@
 # The sco-core version sc_ipc.h and sc_titanlink.h here are vendored from: a commit sha or tag of
 # https://github.com/scubamount/sco-core (include/). CI downloads both at this ref and fails if
 # either differs byte for byte. The first non-comment line is the pin.
-# 7b305d3: head of sco-core PR #47 (sdk-bridge-headers), until it merges.
-7b305d39fe746dbc50f896c0879d55961e94bb39
+# ed55716: sco-core main, the merge of PR #47 (sdk-bridge-headers).
+ed557164ec93b6e948bcebc1758572dbfee290dd
