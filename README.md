@@ -97,13 +97,19 @@ SDK, vendored byte for byte in `third_party/sco-sdk/`:
 - `sc_titanlink.h`: the TitanLink layout, `TL_LAYOUT_ID` `0x314B4C54` ("TLK1"),
   `TL_LAYOUT_VERSION` 1.
 
-`third_party/sco-sdk/SCO_SDK_PIN` names the sco-core commit (or SDK tag) they come from. Three
+`third_party/sco-sdk/SCO_SDK_PIN` names the sco-core commit (or SDK tag) they come from. Four
 checks keep both sides on the same wire:
 
 - **CI** downloads both headers from sco-core at the pin (`tools/check-sdk.sh`) and fails if
   either differs by a byte.
 - **The build** fails if the vendored headers carry another wire version, layout id, layout
   version, offset or size than `src/link.cpp` was written for (`static_assert`s).
+- **Golden tests** in `tests/wire_golden.cpp` compare literal little-endian bytes for the channel
+  header, ring headers/counters, seqlock headers, all five payload layouts and message framing.
+  Expected sizes, offsets and IEEE-754 words are independent of the vendored declarations; do
+  not regenerate them to bless a changed header. They also exercise wire/layout refusal,
+  heartbeat timeout boundaries, live-epoch recovery, torn/wrong-size blocks, close behavior,
+  malformed raw ring frames and valid wrap padding against the real `src/link.cpp`.
 - **At run time**, `sc_ipc_attach` refuses a channel of another wire or layout version. The plugin
   then logs, once, `REFUSING to attach: sc-offline's channel speaks ...; this plugin was built for
   ...`, and doesn't attach. Update whichever side is behind.
@@ -130,9 +136,30 @@ cmake --build build --config Release
 ctest --test-dir build -C Release --output-on-failure
 ```
 
+To run only the golden test with native Win32 mappings after configuring/building on Windows:
+
+```text
+cmake --build build --config Release --target wire_golden
+ctest --test-dir build -C Release -R "^wire_golden$" --output-on-failure
+```
+
+For a single-file development check on macOS/Linux with Clang (or `CXX=g++`), including
+AddressSanitizer and UndefinedBehaviorSanitizer:
+
+```sh
+bash tools/check-sdk.sh
+bash tools/test-wire-golden.sh
+```
+
+The portable runner compiles the same test and real `src/link.cpp`, but includes the explicit
+**test-only, single-threaded in-process mapping/CRT shim** in `tests/portable/windows.h`. It does
+not test Windows shared-memory security, cross-process behavior, scheduling or game integration;
+those still require Windows/owner acceptance. MSVC builds use real Win32 APIs, never the shim.
+No sco-core host code or headers beyond the two MIT wire headers are compiled by either test.
+
 `build\Release\TitanLink.dll` is the plugin; `mod\TitanLink` is the mod. CI (`.github/workflows/
-build.yml`, windows-latest) checks the SDK pin, builds, runs the self-test and uploads both,
-laid out as above, as the `TitanLink-northstar` artifact.
+build.yml`, windows-latest) checks the SDK pin, builds, runs the self-test and golden test, and
+uploads both, laid out as above, as the `TitanLink-northstar` artifact.
 
 ## How it talks to Titanfall 2
 
