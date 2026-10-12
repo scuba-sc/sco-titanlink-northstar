@@ -38,5 +38,10 @@ add_executable(link_selftest tests/link_selftest.cpp)
 target_link_libraries(link_selftest PRIVATE titanlink_link)
 target_compile_options(link_selftest PRIVATE ${TL_OPTIONS})
 
+add_executable(wire_golden tests/wire_golden.cpp)
+target_link_libraries(wire_golden PRIVATE titanlink_link)
+target_compile_options(wire_golden PRIVATE ${TL_OPTIONS})
+
 enable_testing()
 add_test(NAME link_selftest COMMAND link_selftest)
+add_test(NAME wire_golden COMMAND wire_golden)
