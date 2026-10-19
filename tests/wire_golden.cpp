@@ -74,10 +74,10 @@ void HeaderAndRingBytes() {
     Equal(owner.base + 0x1000, sizeof(sc_ipc_ring), ring);
     ring[4] = 2;
     Equal(owner.base + 0x5100, sizeof(sc_ipc_ring), ring);
-    CHECK(SC_IPC_VERSION == 1 && TL_LAYOUT_ID == 0x314b4c54 && TL_LAYOUT_VERSION == 1);
-    CHECK(TL_CHANNEL_BYTES == 65536 && TL_OFF_SC_STATE == 0x100 && TL_OFF_TF_STATE == 0x400);
-    CHECK(TL_OFF_FRAME == 0x600 && TL_OFF_TO_PEER == 0x1000 && TL_OFF_FROM_PEER == 0x5100);
-    CHECK(TL_RING_TO_PEER == 0x4000 && TL_RING_FROM_PEER == 0x4000);
+    static_assert(SC_IPC_VERSION == 1 && TL_LAYOUT_ID == 0x314b4c54 && TL_LAYOUT_VERSION == 1);
+    static_assert(TL_CHANNEL_BYTES == 65536 && TL_OFF_SC_STATE == 0x100 && TL_OFF_TF_STATE == 0x400);
+    static_assert(TL_OFF_FRAME == 0x600 && TL_OFF_TO_PEER == 0x1000 && TL_OFF_FROM_PEER == 0x5100);
+    static_assert(TL_RING_TO_PEER == 0x4000 && TL_RING_FROM_PEER == 0x4000);
 }
 
 void StateAndBlockBytes() {
