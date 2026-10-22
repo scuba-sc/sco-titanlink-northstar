@@ -10,7 +10,7 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 status=0
 for f in sc_ipc.h sc_titanlink.h; do
-    if ! curl -fsSL --retry 3 "https://raw.githubusercontent.com/scubamount/sco-core/$pin/include/$f" -o "$tmp/$f"; then
+    if ! curl -fsSL --retry 3 "https://raw.githubusercontent.com/scuba-sc/sco-core/$pin/include/$f" -o "$tmp/$f"; then
         echo "FAIL: could not download include/$f at $pin" >&2
         status=1
         continue
